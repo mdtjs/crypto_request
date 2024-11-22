@@ -51,42 +51,44 @@ public class DecryptInterceptor implements HandlerInterceptor {
                 if (method.hasMethodAnnotation(Decrypt.class)) {
                     String contentType = request.getContentType();
                     if (contentType == null && !"GET".equals(request.getMethod())) {
-                        throw new CryptoException("400", "Bad Request");
+                        throw new CryptoException(HttpCode.BAD_REQUEST, "Bad Request");
                     }
 
-                    // application/x-www-form-urlencoded
+                    // 解密并重新封装map
                     if ((contentType != null && StringUtils.substringMatch(contentType, 0, MediaType.APPLICATION_FORM_URLENCODED_VALUE)) || "GET".equals(request.getMethod())) {
                         ServletInputStream inputStream = request.getInputStream();
-                        // 特定加密方式取等号后的加密字符串即可
-                        String dataString = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8).split("=")[1];
-                        params = decryptAndParseStringToMap(dataString);
-                        requestBody = toJsonString(params);
+                        String dataString = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+                        if (!StringUtils.hasLength(dataString)) {
+                            Map<String, String[]> parameterMap = request.getParameterMap();
+                            String data = String.join(",", parameterMap.get("data"));
+                            params = decryptAndParseStringToMap(data);
+                        } else {
+                            String bodyString = dataString.split("=")[1];
+                            params = decryptAndParseStringToMap(bodyString);
+                            requestBody = parseMapToJson(params);
+                        }
                     }
 
-                    // application/json
+                    // 解密并重新封装body
                     if ((contentType != null && StringUtils.substringMatch(contentType, 0, MediaType.APPLICATION_JSON_VALUE))) {
                         ServletInputStream inputStream = request.getInputStream();
                         String dataJson = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-                        requestBody = getBodyJson(dataJson);
+                        requestBody = decryptAndParseStringToJson(dataJson);
                     }
 
-                    if (requestBody == null) {
+                    if (request instanceof RequestWrapper) {
+                        RequestWrapper requestWrapper = (RequestWrapper) request;
+                        requestWrapper.setBody(requestBody);
+                        requestWrapper.addAllParameters(params);
                         return true;
-                    } else {
-                        if (request instanceof RequestWrapper) {
-                            RequestWrapper requestWrapper = (RequestWrapper) request;
-                            requestWrapper.setBody(requestBody);
-                            requestWrapper.addAllParameters(params);
-                            return true;
-                        }
                     }
+
                     return true;
                 } else {
                     // 封装无需加密的请求
                     ServletInputStream inputStream = request.getInputStream();
                     String bodyString = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-
-                    if (bodyString == null || "{}".equals(requestBody)) {
+                    if (!StringUtils.hasLength(bodyString)) {
                         requestBody = bodyString;
                     } else {
                         if (request instanceof RequestWrapper) {
@@ -128,16 +130,14 @@ public class DecryptInterceptor implements HandlerInterceptor {
         return parameterMap;
     }
 
-    private String toJsonString(Map<String, String[]> bodyMap) {
+    private String parseMapToJson(Map<String, String[]> bodyMap) {
         String bodyString = null;
-
         try {
             ObjectMapper mapper = new ObjectMapper();
             bodyString = mapper.writeValueAsString(bodyMap);
         } catch (JsonProcessingException e) {
             log.error(HttpCode.JSON_PARSE_ERROR, "JSON parse error", e);
         }
-
         return bodyString;
     }
 
@@ -163,13 +163,12 @@ public class DecryptInterceptor implements HandlerInterceptor {
     /**
      * application/json 解析加密参数
      */
-    private String getBodyJson(String dataJson) {
+    private String decryptAndParseStringToJson(String dataJson) {
         String bodyJson = null;
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode dataNode = mapper.readTree(dataJson);
             bodyJson = CryptoUtil.decryptRC4String(dataNode.get(requestBodyKey).asText(), secretKey);
-            JsonNode bodyNode = mapper.readTree(bodyJson);
         } catch (Exception e) {
             log.error("Json cannot be case to map, cause: {}", e.getMessage());
         }

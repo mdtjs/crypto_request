@@ -27,6 +27,7 @@ public class CryptoController extends BaseController {
     }
 
     @RequestMapping(value = "/get-params", method = RequestMethod.GET)
+    @Decrypt
     public CryptoResponse get(
             @RequestParam String id
     ) {
@@ -35,6 +36,7 @@ public class CryptoController extends BaseController {
             user.setName("user1");
             user.setIdCard("123456");
             user.setTimestamp(System.currentTimeMillis());
+            System.out.println("success");
             return CryptoResponse.success(user);
         } else {
             return CryptoResponse.success(HttpCode.BAD_REQUEST);
