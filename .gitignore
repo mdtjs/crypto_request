@@ -13,3 +13,5 @@ logs
 
 .gradle
 build/
+
+echo '.idea' >> .gitignore
