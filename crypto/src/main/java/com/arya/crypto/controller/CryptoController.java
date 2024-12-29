@@ -1,7 +1,9 @@
 package com.arya.crypto.controller;
 
 import com.arya.crypto.annotation.Decrypt;
+import com.arya.crypto.annotation.Encrypt;
 import com.arya.crypto.base.BaseController;
+import com.arya.crypto.base.CryptoResponse;
 import com.arya.crypto.util.HttpCode;
 import com.arya.crypto.model.User;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ public class CryptoController extends BaseController {
 //    Logger log = LoggerFactory.getLogger(CryptoController.class);
 
     @RequestMapping(value = "/get", method = RequestMethod.GET)
+    @Encrypt
     public CryptoResponse get() {
         User user = new User();
         user.setName("user1");

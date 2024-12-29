@@ -34,7 +34,7 @@ dependencies {
         mavenCentral()
     }
 
-    implementation ('org.springframework.boot:spring-boot-starter-web:3.3.0') {
+    implementation('org.springframework.boot:spring-boot-starter-web:3.3.0') {
         exclude(group: 'org.springframework.boot', module: 'spring-boot-starter-logging')
     }
 

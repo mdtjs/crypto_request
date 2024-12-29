@@ -1,4 +1,4 @@
-package com.arya.crypto.controller;
+package com.arya.crypto.base;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;

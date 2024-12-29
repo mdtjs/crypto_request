@@ -19,6 +19,4 @@ public class User implements Serializable {
     private String name;
     private String idCard;
     private Long timestamp;
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-//    private LocalDateTime time;
 }

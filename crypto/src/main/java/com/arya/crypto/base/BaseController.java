@@ -1,6 +1,5 @@
 package com.arya.crypto.base;
 
-import com.arya.crypto.controller.CryptoResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
