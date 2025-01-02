@@ -28,11 +28,9 @@ public class RequestWrapper extends HttpServletRequestWrapper {
     private HttpServletRequest request;
     private Map<String, String[]> parameterMap = new HashMap<>();
 
-    public RequestWrapper(HttpServletRequest request) throws IOException {
+    public RequestWrapper(HttpServletRequest request) {
         super(request);
         this.request = request;
-
-        log.info("Do request wrapper");
 
         String contentType = request.getContentType();
         if (contentType != null && contentType.startsWith(MediaType.MULTIPART_FORM_DATA_VALUE)) {
@@ -104,7 +102,7 @@ public class RequestWrapper extends HttpServletRequestWrapper {
         Map<String, String[]> map = new HashMap<>(super.getParameterMap());
         for (String key : this.parameterMap.keySet()) {
             map.put(key, this.parameterMap.get(key));
-//            setAttribute(key, this.parameterMap.get(key));
+            setAttribute(key, this.parameterMap.get(key));
         }
         return Collections.unmodifiableMap(map);
     }
