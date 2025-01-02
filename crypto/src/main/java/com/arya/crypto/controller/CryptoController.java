@@ -4,9 +4,10 @@ import com.arya.crypto.annotation.Decrypt;
 import com.arya.crypto.annotation.Encrypt;
 import com.arya.crypto.base.BaseController;
 import com.arya.crypto.base.CryptoResponse;
-import com.arya.crypto.util.HttpCode;
+import com.arya.crypto.base.HttpCode;
 import com.arya.crypto.model.User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author Arya
@@ -31,6 +32,7 @@ public class CryptoController extends BaseController {
 
     @RequestMapping(value = "/get-params", method = RequestMethod.GET)
     @Decrypt
+    @Encrypt
     public CryptoResponse get(
             @RequestParam String id
     ) {
@@ -46,7 +48,9 @@ public class CryptoController extends BaseController {
         }
     }
 
-    /** 无加密 @RequestBody application/json */
+    /**
+     * 无加密 @RequestBody application/json
+     */
     @RequestMapping(value = "/body", method = RequestMethod.POST)
     public CryptoResponse body(
             @RequestBody User user
@@ -55,9 +59,12 @@ public class CryptoController extends BaseController {
         return CryptoResponse.success();
     }
 
-    /** 加密 @RequestBody application/json */
+    /**
+     * 加密 @RequestBody application/json
+     */
     @RequestMapping(value = "/encrypted-body", method = RequestMethod.POST)
     @Decrypt
+    @Encrypt
     public CryptoResponse encryptedBody(
             @RequestBody User user
     ) {
@@ -66,7 +73,9 @@ public class CryptoController extends BaseController {
         return CryptoResponse.success();
     }
 
-    /** 无加密 @RequestParam application/x-www-form-urlencoded */
+    /**
+     * 无加密 @RequestParam application/x-www-form-urlencoded
+     */
     @RequestMapping(value = "/param", method = RequestMethod.POST)
     public CryptoResponse param(
             @RequestParam String name,
@@ -77,7 +86,9 @@ public class CryptoController extends BaseController {
         return CryptoResponse.success();
     }
 
-    /** 加密 @RequestParam application/x-www-form-urlencoded */
+    /**
+     * 加密 @RequestParam application/x-www-form-urlencoded
+     */
     @RequestMapping(value = "/encrypted-param", method = RequestMethod.POST)
     @Decrypt
     public CryptoResponse encryptedParam(
@@ -86,6 +97,14 @@ public class CryptoController extends BaseController {
             @RequestParam Long timestamp
     ) {
         System.out.println("Get encrypted requestParams: {name:" + name + " idCard:" + idCard + " timestamp:" + timestamp + "}");
+        return CryptoResponse.success();
+    }
+
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @Decrypt
+    public CryptoResponse uploadFile(
+            @RequestBody MultipartFile file
+    ) {
         return CryptoResponse.success();
     }
 }

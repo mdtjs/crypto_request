@@ -1,4 +1,4 @@
-package com.arya.crypto.util;
+package com.arya.crypto.base;
 
 /**
  * @author Arya

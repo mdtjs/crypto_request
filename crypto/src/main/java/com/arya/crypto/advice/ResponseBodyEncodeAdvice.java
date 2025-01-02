@@ -1,7 +1,7 @@
 package com.arya.crypto.advice;
 
 import com.arya.crypto.annotation.Encrypt;
-import com.arya.crypto.util.CryptoUtil;
+import com.arya.crypto.util.CryptoUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.MethodParameter;
@@ -17,7 +17,7 @@ import java.util.Collections;
 @RestControllerAdvice
 public class ResponseBodyEncodeAdvice implements ResponseBodyAdvice<Object> {
 
-    ObjectMapper mapper = new ObjectMapper();
+    private final static ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
@@ -30,16 +30,14 @@ public class ResponseBodyEncodeAdvice implements ResponseBodyAdvice<Object> {
             return null;
         }
 
-        String encryptedResponseBodyString = null;
-
-        // 加密响应数据
+        String encryptedResponse = null;
         try {
             String responseBodyString = mapper.writeValueAsString(body);
-            encryptedResponseBodyString = CryptoUtil.encryptRC4String(responseBodyString, "secretkey");
+            encryptedResponse = CryptoUtils.encrypt(responseBodyString, "secretkey");
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
 
-        return Collections.singletonMap("data", encryptedResponseBodyString);
+        return Collections.singletonMap("data", encryptedResponse);
     }
 }

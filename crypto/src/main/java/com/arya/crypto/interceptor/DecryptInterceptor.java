@@ -1,10 +1,10 @@
 package com.arya.crypto.interceptor;
 
 import com.arya.crypto.annotation.Decrypt;
-import com.arya.crypto.util.HttpCode;
+import com.arya.crypto.base.HttpCode;
 import com.arya.crypto.exception.CryptoException;
 import com.arya.crypto.filter.RequestWrapper;
-import com.arya.crypto.util.CryptoUtil;
+import com.arya.crypto.util.CryptoUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +21,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -114,7 +115,7 @@ public class DecryptInterceptor implements HandlerInterceptor {
     private Map<String, String[]> decryptAndParseStringToMap(String dataString) {
         Map<String, String[]> parameterMap = new HashMap<>();
         try {
-            String dataJson = CryptoUtil.decryptRC4String(dataString, secretKey);
+            String dataJson = CryptoUtils.decode(dataString, secretKey);
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(dataJson);
@@ -168,7 +169,7 @@ public class DecryptInterceptor implements HandlerInterceptor {
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode dataNode = mapper.readTree(dataJson);
-            bodyJson = CryptoUtil.decryptRC4String(dataNode.get(requestBodyKey).asText(), secretKey);
+            bodyJson = CryptoUtils.decode(dataNode.get(requestBodyKey).asText(), secretKey);
         } catch (Exception e) {
             log.error("Json cannot be case to map, cause: {}", e.getMessage());
         }
